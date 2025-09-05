@@ -1,19 +1,47 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Sparkles, Check, Minimize2, TreePine, Crown, Briefcase, Leaf, Sun, Zap, Tag } from 'lucide-react';
 import { useAppContext } from '../hooks/useAppContext';
 import type { AdTheme } from '../types';
 
 const themes: AdTheme[] = [
-  { id: 'minimalist', name: 'Minimalist', description: 'Clean & simple', icon: '🎯' },
-  { id: 'festive', name: 'Festive', description: 'Holiday vibes', icon: '🎄' },
-  { id: 'lifestyle', name: 'Lifestyle', description: 'Real moments', icon: '🌟' },
-  { id: 'luxury', name: 'Luxury', description: 'Premium feel', icon: '💎' },
-  { id: 'office', name: 'Office', description: 'Professional', icon: '💼' },
-  { id: 'nature', name: 'Nature', description: 'Organic & natural', icon: '🌿' },
-  { id: 'summer', name: 'Summer', description: 'Bright & energetic', icon: '🌴' },
-  { id: 'bold', name: 'Bold Colors', description: 'Eye-catching', icon: '🔥' },
-  { id: 'sale', name: 'Sale Banner', description: 'Promotional', icon: '🏷️' },
+  { id: 'minimalist', name: 'Minimalist', description: 'Clean & simple', icon: 'minimalist' },
+  { id: 'festive', name: 'Festive', description: 'Holiday vibes', icon: 'festive' },
+  { id: 'lifestyle', name: 'Lifestyle', description: 'Real moments', icon: 'lifestyle' },
+  { id: 'luxury', name: 'Luxury', description: 'Premium feel', icon: 'luxury' },
+  { id: 'office', name: 'Office', description: 'Professional', icon: 'office' },
+  { id: 'nature', name: 'Nature', description: 'Organic & natural', icon: 'nature' },
+  { id: 'summer', name: 'Summer', description: 'Bright & energetic', icon: 'summer' },
+  { id: 'bold', name: 'Bold Colors', description: 'Eye-catching', icon: 'bold' },
+  { id: 'sale', name: 'Sale Banner', description: 'Promotional', icon: 'sale' },
 ];
+
+function getThemeIcon(iconType: string) {
+  const iconProps = { className: "w-8 h-8" };
+  
+  switch (iconType) {
+    case 'minimalist':
+      return <Minimize2 {...iconProps} />;
+    case 'festive':
+      return <TreePine {...iconProps} />;
+    case 'lifestyle':
+      return <Sparkles {...iconProps} />;
+    case 'luxury':
+      return <Crown {...iconProps} />;
+    case 'office':
+      return <Briefcase {...iconProps} />;
+    case 'nature':
+      return <Leaf {...iconProps} />;
+    case 'summer':
+      return <Sun {...iconProps} />;
+    case 'bold':
+      return <Zap {...iconProps} />;
+    case 'sale':
+      return <Tag {...iconProps} />;
+    default:
+      return <Sparkles {...iconProps} />;
+  }
+}
 
 export function ThemeSelection() {
   const navigate = useNavigate();
@@ -72,12 +100,12 @@ export function ThemeSelection() {
                   }`}
                   onClick={() => handleThemeSelect(theme)}
                 >
-                  <div className="text-2xl mb-3">{theme.icon}</div>
+                  <div className="mb-4 text-primary-500 flex justify-center">{getThemeIcon(theme.icon)}</div>
                   <h3 className="font-semibold text-gray-800 mb-1">{theme.name}</h3>
                   <p className="text-sm text-gray-500">{theme.description}</p>
                   {selectedThemeId === theme.id && (
-                    <div className="absolute top-3 right-3 w-5 h-5 bg-primary-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                      ✓
+                    <div className="absolute top-3 right-3 w-5 h-5 bg-primary-500 text-white rounded-full flex items-center justify-center">
+                      <Check className="w-3 h-3" />
                     </div>
                   )}
                 </div>
@@ -88,10 +116,11 @@ export function ThemeSelection() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
           <button 
-            className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-600 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all"
+            className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-600 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
             onClick={handleBackToUpload}
           >
-            ← Back to Upload
+            <ArrowLeft className="w-4 h-4" />
+            Back to Upload
           </button>
           <button 
             className={`w-full sm:w-auto px-8 py-3 font-semibold rounded-lg transition-all ${
@@ -102,7 +131,8 @@ export function ThemeSelection() {
             onClick={handleGenerate}
             disabled={!selectedThemeId}
           >
-            ⭐ Generate Ad
+            <Sparkles className="w-4 h-4 inline mr-2" />
+            Generate Ad
           </button>
         </div>
       </div>

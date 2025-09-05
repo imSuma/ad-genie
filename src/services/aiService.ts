@@ -1,4 +1,5 @@
 import type { AdTheme, UploadedImage, GeneratedAd } from '../types';
+import { storageUtils } from '../utils/storage';
 
 // This is a mock implementation. Replace with actual Google Nano Banana API integration
 // when available.
@@ -8,19 +9,14 @@ interface AIGenerationRequest {
   theme: AdTheme;
 }
 
-interface AIGenerationResponse {
-  success: boolean;
-  imageUrl?: string;
-  error?: string;
-}
-
 class AIService {
-  private apiKey: string | null;
-  private baseUrl: string;
+  private getApiKey(): string | null {
+    // First try to get from local storage, then fall back to env vars
+    return storageUtils.getApiKey() || import.meta.env.VITE_AI_API_KEY || null;
+  }
 
-  constructor() {
-    this.apiKey = import.meta.env.VITE_AI_API_KEY || null;
-    this.baseUrl = import.meta.env.VITE_AI_API_URL || '';
+  private getBaseUrl(): string {
+    return 'https://generativelanguage.googleapis.com/v1beta/models';
   }
 
   async generateAd(request: AIGenerationRequest): Promise<GeneratedAd> {
@@ -60,27 +56,45 @@ class AIService {
     return `https://via.placeholder.com/${width}x${height}/${color}/ffffff?text=${encodeURIComponent(theme.name + ' Ad')}`;
   }
 
-  // Method to integrate with actual Google Nano Banana API
-  async generateAdWithNanoBanana(request: AIGenerationRequest): Promise<GeneratedAd> {
-    if (!this.apiKey) {
-      throw new Error('AI API key not configured');
+  // Method to integrate with actual Google AI API
+  async generateAdWithGoogleAI(request: AIGenerationRequest): Promise<GeneratedAd> {
+    const apiKey = this.getApiKey();
+    if (!apiKey) {
+      throw new Error('AI API key not configured. Please configure it in Settings.');
     }
 
     try {
       // Convert image to base64 for API
       const base64Image = await this.fileToBase64(request.image.file);
       
-      const response = await fetch(`${this.baseUrl}/generate`, {
+      const baseUrl = this.getBaseUrl();
+      
+      // Google AI Studio API call
+      const response = await fetch(`${baseUrl}/gemini-pro-vision:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          image: base64Image,
-          theme: request.theme.id,
-          prompt: `Create a ${request.theme.description} style advertisement for this product`,
-          style: request.theme.name,
+          contents: [{
+            parts: [
+              {
+                text: `Create a ${request.theme.description} style advertisement for this product. Generate an image that showcases the product in a ${request.theme.name} theme.`
+              },
+              {
+                inline_data: {
+                  mime_type: request.image.file.type,
+                  data: base64Image
+                }
+              }
+            ]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+          }
         }),
       });
 
@@ -88,17 +102,14 @@ class AIService {
         throw new Error(`API request failed: ${response.statusText}`);
       }
 
-      const result: AIGenerationResponse = await response.json();
-      
-      if (!result.success || !result.imageUrl) {
-        throw new Error(result.error || 'Failed to generate ad');
-      }
-
+      // For now, Google AI Studio doesn't generate images directly
+      // This would need to be integrated with an image generation service
+      // For demo purposes, we'll return a mock response
       return {
         id: Date.now().toString(),
-        imageUrl: result.imageUrl,
+        imageUrl: this.generateMockImage(request.theme),
         theme: request.theme.name,
-        downloadUrl: result.imageUrl,
+        downloadUrl: undefined,
       };
     } catch (error) {
       console.error('AI generation error:', error);

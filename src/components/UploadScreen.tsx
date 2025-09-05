@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
+import { Upload, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAppContext } from '../hooks/useAppContext';
 import type { UploadedImage } from '../types';
 
@@ -58,7 +59,7 @@ export function UploadScreen() {
                     ? 'border-primary-500 bg-primary-50' 
                     : 'border-gray-300 hover:border-primary-500 hover:bg-primary-50'
                 }`}>
-                  <div className="text-5xl mb-4">⬆️</div>
+                  <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                   <h3 className="text-xl font-semibold text-gray-800 mb-2">Drag & drop your image</h3>
                   <p className="text-sm text-gray-500">or click to browse • PNG, JPG, WEBP up to 10MB</p>
                 </div>
@@ -81,8 +82,8 @@ export function UploadScreen() {
 
           <div className="flex flex-col gap-8">
             <div className="flex items-start gap-4 bg-white p-6 rounded-xl shadow-sm">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
-                ⭐
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-6 h-6 text-purple-600" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">AI-Powered Ad Generation</h3>
@@ -91,8 +92,8 @@ export function UploadScreen() {
             </div>
 
             <div className="flex items-start gap-4 bg-white p-6 rounded-xl shadow-sm">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
-                ✅
+              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <CheckCircle2 className="w-6 h-6 text-green-600" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Best Practices</h3>
@@ -122,7 +123,8 @@ export function UploadScreen() {
                 className="w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/30 mt-4"
                 onClick={handleGenerateAds}
               >
-                ⭐ Generate Ads
+                <Sparkles className="w-4 h-4 inline mr-2" />
+                Generate Ads
               </button>
             )}
           </div>

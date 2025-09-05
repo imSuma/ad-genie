@@ -1,16 +1,20 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppProvider';
 import { Header } from './components/Header';
 import { UploadScreen } from './components/UploadScreen';
 import { ThemeSelection } from './components/ThemeSelection';
 import { ResultsScreen } from './components/ResultsScreen';
+import { SettingsModal } from './components/SettingsModal';
 
 function App() {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
     <AppProvider>
       <BrowserRouter>
         <div className="min-h-screen flex flex-col bg-gray-50">
-          <Header />
+          <Header onSettingsClick={() => setIsSettingsOpen(true)} />
           <main className="flex-1 py-8">
             <Routes>
               <Route path="/" element={<UploadScreen />} />
@@ -18,6 +22,15 @@ function App() {
               <Route path="/results" element={<ResultsScreen />} />
             </Routes>
           </main>
+          
+          <SettingsModal
+            isOpen={isSettingsOpen}
+            onClose={() => setIsSettingsOpen(false)}
+            onSave={(apiKey) => {
+              console.log('API key saved:', apiKey ? 'Configured' : 'Not configured');
+              // API key is automatically saved to localStorage by the modal
+            }}
+          />
         </div>
       </BrowserRouter>
     </AppProvider>

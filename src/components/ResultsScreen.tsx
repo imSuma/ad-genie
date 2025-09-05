@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Download, RefreshCw, Loader } from 'lucide-react';
 import { useAppContext } from '../hooks/useAppContext';
 import { downloadImage, downloadMultipleImages } from '../utils/download';
 import { aiService } from '../services/aiService';
@@ -14,10 +15,20 @@ export function ResultsScreen() {
         setIsGenerating(true);
         
         try {
-          const generatedAd = await aiService.generateAd({
-            image: state.uploadedImage,
-            theme: state.selectedTheme,
-          });
+          // Try to use the configured API first, fallback to mock
+          let generatedAd;
+          try {
+            generatedAd = await aiService.generateAdWithGoogleAI({
+              image: state.uploadedImage,
+              theme: state.selectedTheme,
+            });
+          } catch (apiError) {
+            console.warn('API generation failed, using mock:', apiError);
+            generatedAd = await aiService.generateAd({
+              image: state.uploadedImage,
+              theme: state.selectedTheme,
+            });
+          }
           
           setGeneratedAds([generatedAd]);
         } catch (error) {
@@ -67,7 +78,7 @@ export function ResultsScreen() {
       <div className="max-w-6xl mx-auto px-8">
         <div className="text-center">
           <div className="flex flex-col items-center justify-center min-h-96">
-            <div className="w-12 h-12 border-4 border-gray-200 border-t-primary-500 rounded-full animate-spin mb-8"></div>
+            <Loader className="w-12 h-12 text-primary-500 animate-spin mb-8" />
             <h2 className="text-2xl font-semibold text-gray-800 mb-2">Generating Your Ad...</h2>
             <p className="text-gray-500 max-w-md">Our AI is creating a stunning ad for you. This may take a moment.</p>
           </div>
@@ -88,16 +99,18 @@ export function ResultsScreen() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
           <button 
-            className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300"
+            className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
             onClick={handleDownloadAll}
           >
-            ⬇️ Download Ad
+            <Download className="w-4 h-4" />
+            Download Ad
           </button>
           <button 
-            className="w-full sm:w-auto border border-gray-300 text-gray-600 font-medium py-3 px-8 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all"
+            className="w-full sm:w-auto border border-gray-300 text-gray-600 font-medium py-3 px-8 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
             onClick={handleCreateNew}
           >
-            🔄 Create New Ads
+            <RefreshCw className="w-4 h-4" />
+            Create New Ads
           </button>
         </div>
 
@@ -115,10 +128,11 @@ export function ResultsScreen() {
                 />
               </div>
               <button 
-                className="w-full border-t border-gray-200 text-gray-600 font-medium py-3 hover:bg-gray-50 transition-all"
+                className="w-full border-t border-gray-200 text-gray-600 font-medium py-3 hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
                 onClick={() => handleDownloadAd(ad)}
               >
-                ⬇️ Download
+                <Download className="w-4 h-4" />
+                Download
               </button>
             </div>
           ))}
