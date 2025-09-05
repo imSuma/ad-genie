@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useCallback, useMemo } from 'react';
 import { AppContext } from './AppContext';
 import type { AppState, UploadedImage, AdTheme, GeneratedAd } from '../types';
 
@@ -36,35 +36,37 @@ function appReducer(state: AppState, action: AppAction): AppState {
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
-  const setUploadedImage = (image: UploadedImage | null) => {
+  const setUploadedImage = useCallback((image: UploadedImage | null) => {
     dispatch({ type: 'SET_UPLOADED_IMAGE', payload: image });
-  };
+  }, []);
 
-  const setSelectedTheme = (theme: AdTheme | null) => {
+  const setSelectedTheme = useCallback((theme: AdTheme | null) => {
     dispatch({ type: 'SET_SELECTED_THEME', payload: theme });
-  };
+  }, []);
 
-  const setGeneratedAds = (ads: GeneratedAd[]) => {
+  const setGeneratedAds = useCallback((ads: GeneratedAd[]) => {
     dispatch({ type: 'SET_GENERATED_ADS', payload: ads });
-  };
+  }, []);
 
-  const setIsGenerating = (generating: boolean) => {
+  const setIsGenerating = useCallback((generating: boolean) => {
     dispatch({ type: 'SET_IS_GENERATING', payload: generating });
-  };
+  }, []);
 
-  const resetApp = () => {
+  const resetApp = useCallback(() => {
     dispatch({ type: 'RESET_APP' });
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    state,
+    setUploadedImage,
+    setSelectedTheme,
+    setGeneratedAds,
+    setIsGenerating,
+    resetApp,
+  }), [state, setUploadedImage, setSelectedTheme, setGeneratedAds, setIsGenerating, resetApp]);
 
   return (
-    <AppContext.Provider value={{
-      state,
-      setUploadedImage,
-      setSelectedTheme,
-      setGeneratedAds,
-      setIsGenerating,
-      resetApp,
-    }}>
+    <AppContext.Provider value={contextValue}>
       {children}
     </AppContext.Provider>
   );

@@ -11,13 +11,9 @@ interface AIGenerationRequest {
 
 class AIService {
   private getApiKey(): string | null {
-    // First try to get from local storage, then fall back to env vars
-    return storageUtils.getApiKey() || import.meta.env.VITE_AI_API_KEY || null;
+    return storageUtils.getApiKey() || null;
   }
 
-  private getBaseUrl(): string {
-    return 'https://generativelanguage.googleapis.com/v1beta/models';
-  }
 
   async generateAd(request: AIGenerationRequest): Promise<GeneratedAd> {
     // Mock implementation - replace with actual API call
@@ -56,7 +52,7 @@ class AIService {
     return `https://via.placeholder.com/${width}x${height}/${color}/ffffff?text=${encodeURIComponent(theme.name + ' Ad')}`;
   }
 
-  // Method to integrate with actual Google AI API
+  // Method to integrate with actual Google AI API using Gemini 2.5 Flash Image
   async generateAdWithGoogleAI(request: AIGenerationRequest): Promise<GeneratedAd> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
@@ -64,57 +60,94 @@ class AIService {
     }
 
     try {
-      // Convert image to base64 for API
+      // Convert uploaded image to base64 to understand the product
       const base64Image = await this.fileToBase64(request.image.file);
       
-      const baseUrl = this.getBaseUrl();
+      // Create a detailed prompt for ad generation based on the theme
+      const adPrompt = this.generateAdPrompt(request.theme);
       
-      // Google AI Studio API call
-      const response = await fetch(`${baseUrl}/gemini-pro-vision:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              {
-                text: `Create a ${request.theme.description} style advertisement for this product. Generate an image that showcases the product in a ${request.theme.name} theme.`
-              },
-              {
-                inline_data: {
-                  mime_type: request.image.file.type,
-                  data: base64Image
+      // Use Gemini 2.5 Flash Image for image generation
+      const response = await fetch(
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent',
+        {
+          method: 'POST',
+          headers: {
+            'x-goog-api-key': apiKey,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                {
+                  text: adPrompt
+                },
+                {
+                  inlineData: {
+                    mimeType: request.image.file.type,
+                    data: base64Image
+                  }
                 }
-              }
-            ]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          }
-        }),
-      });
+              ]
+            }],
+            generationConfig: {
+              temperature: 0.8,
+              topP: 0.95,
+            }
+          }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
-      // For now, Google AI Studio doesn't generate images directly
-      // This would need to be integrated with an image generation service
-      // For demo purposes, we'll return a mock response
-      return {
-        id: Date.now().toString(),
-        imageUrl: this.generateMockImage(request.theme),
-        theme: request.theme.name,
-        downloadUrl: undefined,
-      };
+      const data = await response.json();
+      
+      // Extract the generated image from the response
+      if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+        const imagePart = data.candidates[0].content.parts.find((part: { inlineData?: { data: string; mimeType?: string } }) => part.inlineData);
+        
+        if (imagePart && imagePart.inlineData && imagePart.inlineData.data) {
+          const imageBase64 = imagePart.inlineData.data;
+          const mimeType = imagePart.inlineData.mimeType || 'image/png';
+          const dataUrl = `data:${mimeType};base64,${imageBase64}`;
+          
+          return {
+            id: Date.now().toString(),
+            imageUrl: dataUrl,
+            theme: request.theme.name,
+          };
+        }
+      }
+      
+      // If no image is returned, throw an error
+      throw new Error('No image generated in API response');
+      
     } catch (error) {
       console.error('AI generation error:', error);
       throw error;
     }
+  }
+
+  private generateAdPrompt(theme: AdTheme): string {
+    const basePrompt = `Create a professional advertisement image featuring the product shown in the reference image. `;
+    
+    const themePrompts = {
+      minimalist: `Use a clean, minimalist design with lots of white space, simple typography, and focus on the product itself. The composition should be elegant and uncluttered with subtle shadows and neutral colors.`,
+      festive: `Create a festive, holiday-themed advertisement with warm colors, seasonal decorations, and a celebratory atmosphere. Include elements that evoke joy and celebration while highlighting the product.`,
+      lifestyle: `Show the product in a real-life scenario with people or lifestyle context. Create a relatable, authentic scene that demonstrates how the product fits into everyday life with natural lighting and genuine moments.`,
+      luxury: `Design a premium, luxurious advertisement with elegant styling, rich colors, sophisticated typography, and high-end aesthetics. The image should convey exclusivity and premium quality.`,
+      office: `Present the product in a professional office or business environment. Use clean, corporate aesthetics with modern office elements and professional styling that appeals to business users.`,
+      nature: `Incorporate natural elements, organic textures, and earthy tones. Show the product in harmony with nature, using natural lighting and environmentally conscious themes.`,
+      summer: `Create a bright, energetic summer-themed advertisement with vibrant colors, sunny atmosphere, and elements that evoke warmth, vacation, and outdoor activities.`,
+      bold: `Use striking, eye-catching colors and dynamic composition. Create a high-impact visual with bold contrasts, dramatic lighting, and attention-grabbing design elements.`,
+      sale: `Design a promotional advertisement with clear sale messaging, urgency elements, and compelling visual cues that encourage immediate purchase. Include dynamic elements that convey value and savings.`
+    };
+
+    const themeInstruction = themePrompts[theme.id as keyof typeof themePrompts] || themePrompts.lifestyle;
+    
+    return `${basePrompt}${themeInstruction} The advertisement should be suitable for digital marketing use, with high visual impact and professional quality. Make sure the product is clearly visible and prominently featured. Create an image that would be perfect for social media advertising or e-commerce marketing.`;
   }
 
   private fileToBase64(file: File): Promise<string> {
