@@ -13,9 +13,9 @@ function App() {
   return (
     <AppProvider>
       <BrowserRouter>
-        <div className="min-h-screen flex flex-col bg-gray-50">
+        <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-100">
           <Header onSettingsClick={() => setIsSettingsOpen(true)} />
-          <main className="flex-1 py-8">
+          <main className="flex-1">
             <Routes>
               <Route path="/" element={<UploadScreen />} />
               <Route path="/themes" element={<ThemeSelection />} />

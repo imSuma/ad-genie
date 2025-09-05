@@ -17,7 +17,7 @@ const themes: AdTheme[] = [
 ];
 
 function getThemeIcon(iconType: string) {
-  const iconProps = { className: "w-8 h-8" };
+  const iconProps = { className: "w-10 h-10" };
   
   switch (iconType) {
     case 'minimalist':
@@ -64,74 +64,81 @@ export function ThemeSelection() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-8">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">
-          Choose Your Ad Style
-        </h1>
-        <p className="text-lg text-gray-500 mb-12">
-          Select a theme to generate your custom ad
-        </p>
+    <div className="min-h-screen py-12">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-6">
+            Choose Your Ad Style
+          </h1>
+          <p className="text-xl text-gray-500 max-w-3xl mx-auto leading-relaxed">
+            Select a theme to generate your custom ad
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-12 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 mb-16">
           <div className="text-left">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Your Product</h3>
+            <h3 className="text-xl font-bold text-gray-800 mb-6">Your Product</h3>
             {state.uploadedImage && (
-              <div className="bg-white rounded-xl p-6 shadow-sm">
+              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-100/50">
                 <img 
                   src={state.uploadedImage.preview} 
                   alt="Product" 
-                  className="w-full max-w-48 h-auto rounded-lg mb-4 object-contain"
+                  className="w-full max-w-48 h-auto rounded-xl mb-4 object-contain shadow-lg"
                 />
-                <p className="text-xs text-gray-500 break-all">{state.uploadedImage.name}</p>
+                <p className="text-sm text-gray-500 break-all font-medium">{state.uploadedImage.name}</p>
               </div>
             )}
           </div>
 
           <div className="lg:col-span-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {themes.map((theme) => (
                 <div
                   key={theme.id}
-                  className={`relative bg-white border-2 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${
+                  className={`group relative bg-white/80 backdrop-blur-sm border-2 rounded-2xl p-6 cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl text-center ${
                     selectedThemeId === theme.id 
-                      ? 'border-primary-500 bg-primary-50 shadow-lg shadow-primary-500/20' 
-                      : 'border-gray-200 hover:border-primary-500'
+                      ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-primary-100 shadow-xl shadow-primary-500/30' 
+                      : 'border-gray-200 hover:border-primary-500 hover:shadow-xl'
                   }`}
                   onClick={() => handleThemeSelect(theme)}
                 >
-                  <div className="mb-4 text-primary-500 flex justify-center">{getThemeIcon(theme.icon)}</div>
-                  <h3 className="font-semibold text-gray-800 mb-1">{theme.name}</h3>
-                  <p className="text-sm text-gray-500">{theme.description}</p>
+                  <div className={`mb-3 flex justify-center transition-all duration-300 ${
+                    selectedThemeId === theme.id ? 'text-primary-600 scale-110' : 'text-primary-500 group-hover:scale-110'
+                  }`}>
+                    {getThemeIcon(theme.icon)}
+                  </div>
+                  <h3 className="font-bold text-gray-800 mb-1 text-lg">{theme.name}</h3>
+                  <p className="text-gray-500 text-sm">{theme.description}</p>
                   {selectedThemeId === theme.id && (
-                    <div className="absolute top-3 right-3 w-5 h-5 bg-primary-500 text-white rounded-full flex items-center justify-center">
-                      <Check className="w-3 h-3" />
+                    <div className="absolute top-3 right-3 w-6 h-6 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full flex items-center justify-center shadow-lg">
+                      <Check className="w-4 h-4" />
                     </div>
                   )}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-primary-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 max-w-lg mx-auto">
           <button 
-            className="w-full sm:w-auto px-6 py-3 border border-gray-300 text-gray-600 rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-4 border-2 border-gray-300 text-gray-600 rounded-2xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 flex items-center justify-center gap-3 font-semibold group"
             onClick={handleBackToUpload}
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-1" />
             Back to Upload
           </button>
           <button 
-            className={`w-full sm:w-auto px-8 py-3 font-semibold rounded-lg transition-all ${
+            className={`w-full sm:w-auto px-10 py-4 font-bold rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group ${
               selectedThemeId
-                ? 'bg-primary-500 hover:bg-primary-600 text-white hover:-translate-y-0.5 hover:shadow-lg'
+                ? 'bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/30'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
             onClick={handleGenerate}
             disabled={!selectedThemeId}
           >
-            <Sparkles className="w-4 h-4 inline mr-2" />
+            <Sparkles className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" />
             Generate Ad
           </button>
         </div>

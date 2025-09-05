@@ -106,7 +106,6 @@ export function ResultsScreen() {
               {/* Theme Badge */}
               <div className="absolute top-6 left-6 z-20">
                 <div className="inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg backdrop-blur-sm">
-                  <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
                   {ad.theme}
                 </div>
               </div>
@@ -122,19 +121,17 @@ export function ResultsScreen() {
               </div>
 
               {/* Action Buttons */}
-              <div className="p-8 space-y-4">
+              <div className="p-6 space-y-3">
                 <button 
-                  className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
+                  className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg"
                   onClick={() => handleDownloadAd(ad)}
                 >
-                  <Download className="w-5 h-5" />
                   Download Ad
                 </button>
                 <button 
-                  className="w-full bg-white border-2 border-gray-200 hover:border-primary-300 hover:bg-primary-50 text-gray-700 hover:text-primary-700 font-semibold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-3 group/btn"
+                  className="w-full bg-white border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 font-medium py-3 px-6 rounded-lg"
                   onClick={handleCreateNew}
                 >
-                  <RefreshCw className="w-5 h-5 transition-transform duration-300 group-hover/btn:rotate-180" />
                   Create New Ads
                 </button>
               </div>
