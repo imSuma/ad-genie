@@ -24,4 +24,5 @@ export interface AppState {
   selectedTheme: AdTheme | null;
   generatedAds: GeneratedAd[];
   isGenerating: boolean;
+  adHistory: GeneratedAd[];
 }

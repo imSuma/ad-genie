@@ -7,6 +7,7 @@ export interface AppContextType {
   setSelectedTheme: (theme: AdTheme | null) => void;
   setGeneratedAds: (ads: GeneratedAd[]) => void;
   setIsGenerating: (generating: boolean) => void;
+  addToHistory: (ad: GeneratedAd) => void;
   resetApp: () => void;
 }
 

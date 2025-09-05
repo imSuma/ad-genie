@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { Upload, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAppContext } from '../hooks/useAppContext';
+import { RecentAds } from './RecentAds';
 import type { UploadedImage } from '../types';
 
 export function UploadScreen() {
@@ -133,6 +134,8 @@ export function UploadScreen() {
                 Generate Ad
               </button>
             )}
+
+            <RecentAds />
           </div>
         </div>
       </div>

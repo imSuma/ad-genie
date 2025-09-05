@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, RefreshCw, Loader } from 'lucide-react';
+import { Loader } from 'lucide-react';
 import { useAppContext } from '../hooks/useAppContext';
 import { downloadImage } from '../utils/download';
 import { aiService } from '../services/aiService';
 
 export function ResultsScreen() {
   const navigate = useNavigate();
-  const { state, setIsGenerating, setGeneratedAds, resetApp } = useAppContext();
+  const { state, setIsGenerating, setGeneratedAds, addToHistory, resetApp } = useAppContext();
   const hasGeneratedRef = useRef(false);
 
   useEffect(() => {
@@ -35,6 +35,7 @@ export function ResultsScreen() {
           }
           
           setGeneratedAds([generatedAd]);
+          addToHistory(generatedAd);
         } catch (error) {
           console.error('Failed to generate ad:', error);
           alert('Failed to generate ad. Please try again.');
@@ -45,7 +46,7 @@ export function ResultsScreen() {
       
       generateAd();
     }
-  }, [state.selectedTheme, state.uploadedImage, state.generatedAds.length, state.isGenerating, setIsGenerating, setGeneratedAds]);
+  }, [state.selectedTheme, state.uploadedImage, state.generatedAds.length, state.isGenerating, setIsGenerating, setGeneratedAds, addToHistory]);
 
 
   const handleCreateNew = () => {
