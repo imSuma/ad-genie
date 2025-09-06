@@ -1,9 +1,6 @@
 import type { AdTheme, UploadedImage, GeneratedAd } from '../types';
 import { storageUtils } from '../utils/storage';
 
-// This is a mock implementation. Replace with actual Google Nano Banana API integration
-// when available.
-
 interface AIGenerationRequest {
   image: UploadedImage;
   theme: AdTheme;
@@ -14,46 +11,7 @@ class AIService {
     return storageUtils.getApiKey() || null;
   }
 
-
   async generateAd(request: AIGenerationRequest): Promise<GeneratedAd> {
-    // Mock implementation - replace with actual API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Generate a single mock ad with a placeholder image that represents the theme
-        const mockImageUrl = this.generateMockImage(request.theme);
-        
-        resolve({
-          id: Date.now().toString(),
-          imageUrl: mockImageUrl,
-          theme: request.theme.name,
-        });
-      }, 2000); // Simulate API delay
-    });
-  }
-
-  private generateMockImage(theme: AdTheme): string {
-    // Generate different colored placeholder images based on theme
-    const colors = {
-      minimalist: '9CA3AF', // Gray
-      festive: 'EF4444',     // Red
-      lifestyle: 'F59E0B',   // Amber
-      luxury: '7C3AED',      // Purple
-      office: '3B82F6',      // Blue
-      nature: '10B981',      // Green
-      summer: 'F97316',      // Orange
-      bold: 'EC4899',        // Pink
-      sale: 'DC2626',        // Red
-    };
-
-    const color = colors[theme.id as keyof typeof colors] || '6B7280';
-    const width = 600;
-    const height = 800;
-    
-    return `https://via.placeholder.com/${width}x${height}/${color}/ffffff?text=${encodeURIComponent(theme.name + ' Ad')}`;
-  }
-
-  // Method to integrate with actual Google AI API using Gemini 2.5 Flash Image
-  async generateAdWithGoogleAI(request: AIGenerationRequest): Promise<GeneratedAd> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
       throw new Error('AI API key not configured. Please configure it in Settings.');

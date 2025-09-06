@@ -19,26 +19,16 @@ export function ResultsScreen() {
         setIsGenerating(true);
         
         try {
-          // Try to use the configured API first, fallback to mock
-          let generatedAd;
-          try {
-            generatedAd = await aiService.generateAdWithGoogleAI({
-              image: state.uploadedImage!,
-              theme: state.selectedTheme!,
-            });
-          } catch (apiError) {
-            console.warn('API generation failed, using mock:', apiError);
-            generatedAd = await aiService.generateAd({
-              image: state.uploadedImage!,
-              theme: state.selectedTheme!,
-            });
-          }
+          const generatedAd = await aiService.generateAd({
+            image: state.uploadedImage!,
+            theme: state.selectedTheme!,
+          });
           
           setGeneratedAds([generatedAd]);
           addToHistory(generatedAd);
         } catch (error) {
           console.error('Failed to generate ad:', error);
-          alert('Failed to generate ad. Please try again.');
+          alert('Failed to generate ad. Please check your API key configuration and try again.');
         } finally {
           setIsGenerating(false);
         }

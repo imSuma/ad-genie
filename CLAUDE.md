@@ -13,7 +13,6 @@ AdGenie is a React + TypeScript + Vite application that transforms product photo
 - **AI Generation**: Real-time ad generation using Google Gemini 2.5 Flash Image API
 - **Download**: Download generated ads in high quality
 - **Settings**: Configure Google AI Studio API key through secure settings modal
-- **Fallback**: Mock generation service when API is not configured
 
 ## Development Commands
 
@@ -32,7 +31,7 @@ AdGenie is a React + TypeScript + Vite application that transforms product photo
   - **ResultsScreen.tsx** - Ad generation results and download interface
   - **Header.tsx** - Application header with logo and settings button
   - **SettingsModal.tsx** - API key configuration modal
-- **src/services/aiService.ts** - Google Gemini 2.5 Flash integration and mock fallback
+- **src/services/aiService.ts** - Google Gemini 2.5 Flash integration
 - **src/hooks/useAppContext.tsx** - React Context for global state management
 - **src/utils/** - Utility functions for storage, downloads, etc.
 - **src/types.ts** - TypeScript type definitions
@@ -61,7 +60,7 @@ AdGenie is a React + TypeScript + Vite application that transforms product photo
 
 ## Google AI Studio API Setup
 
-To use the actual AI-powered ad generation (instead of mock responses):
+To use the AI-powered ad generation:
 
 1. **Get API Key**: Visit [Google AI Studio](https://aistudio.google.com/app/apikey) and create an API key
 2. **Configure in App**: Click the settings button in the header and enter your API key
@@ -77,11 +76,11 @@ To use the actual AI-powered ad generation (instead of mock responses):
 - **Pricing**: $30.00 per 1M output tokens (~$0.039 per image)
 - **Features**: Supports character consistency, targeted transformations, world knowledge integration
 
-### Fallback Behavior
+### Error Handling
 
-- If no API key is configured, the app uses mock placeholder images
-- If API call fails, it falls back to mock generation
-- Users see clear error messages for configuration issues
+- If no API key is configured, users see a clear error message to configure their API key
+- If API call fails, users see detailed error messages for troubleshooting
+- All errors are logged to the console for debugging
 
 ## Code Standards
 
