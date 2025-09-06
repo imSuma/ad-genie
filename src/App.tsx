@@ -17,7 +17,7 @@ function App() {
           <Header onSettingsClick={() => setIsSettingsOpen(true)} />
           <main className="flex-1">
             <Routes>
-              <Route path="/" element={<UploadScreen />} />
+              <Route path="/" element={<UploadScreen onSettingsClick={() => setIsSettingsOpen(true)} />} />
               <Route path="/themes" element={<ThemeSelection />} />
               <Route path="/results" element={<ResultsScreen />} />
             </Routes>
@@ -29,6 +29,8 @@ function App() {
             onSave={(apiKey) => {
               console.log('API key saved:', apiKey ? 'Configured' : 'Not configured');
               // API key is automatically saved to localStorage by the modal
+              // Trigger a storage event to update components
+              window.dispatchEvent(new Event('storage'));
             }}
           />
         </div>

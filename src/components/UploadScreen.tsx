@@ -1,13 +1,49 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
-import { Upload, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Upload, Sparkles, CheckCircle2, AlertTriangle, ExternalLink, Settings } from 'lucide-react';
 import { useAppContext } from '../hooks/useAppContext';
 import { RecentAds } from './RecentAds';
+import { storageUtils } from '../utils/storage';
 import type { UploadedImage } from '../types';
 
-export function UploadScreen() {
+interface UploadScreenProps {
+  onSettingsClick?: () => void;
+}
+
+export function UploadScreen({ onSettingsClick }: UploadScreenProps) {
   const navigate = useNavigate();
   const { state, setUploadedImage } = useAppContext();
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  // Check API key status on component mount and when storage changes
+  useEffect(() => {
+    const checkApiKey = () => {
+      const apiKey = storageUtils.getApiKey();
+      setHasApiKey(!!apiKey);
+    };
+
+    checkApiKey();
+
+    // Listen for storage changes (when API key is updated)
+    const handleStorageChange = () => {
+      checkApiKey();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for focus events to check API key when user returns to tab
+    const handleFocus = () => {
+      checkApiKey();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
 
   const onDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -24,9 +60,19 @@ export function UploadScreen() {
   };
 
   const handleGenerateAds = () => {
-    if (state.uploadedImage) {
+    if (state.uploadedImage && hasApiKey) {
       navigate('/themes');
     }
+  };
+
+  const handleOpenSettings = () => {
+    if (onSettingsClick) {
+      onSettingsClick();
+    }
+  };
+
+  const handleGetApiKey = () => {
+    window.open('https://aistudio.google.com/app/apikey', '_blank');
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -51,6 +97,44 @@ export function UploadScreen() {
             Drop your image below and we'll create a stunning ad for your product using AI
           </p>
         </div>
+
+        {/* API Key Warning Banner */}
+        {!hasApiKey && (
+          <div className="max-w-4xl mx-auto mb-8 animate-in slide-in-from-top duration-500">
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6 shadow-lg">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                  <AlertTriangle className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-amber-900 mb-2">
+                    API Key Required
+                  </h3>
+                  <p className="text-amber-800 mb-4 leading-relaxed">
+                    To generate AI-powered advertisements, you need to configure your Google AI Studio API key. 
+                    This enables our AI to create stunning ads from your product images.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={handleGetApiKey}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg transition-all duration-300 hover:shadow-lg group"
+                    >
+                      <ExternalLink className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
+                      Get API Key
+                    </button>
+                    <button
+                      onClick={handleOpenSettings}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 text-amber-700 font-medium border border-amber-300 rounded-lg transition-all duration-300 hover:shadow-lg group"
+                    >
+                      <Settings className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" />
+                      Configure Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-gray-100/50">
@@ -127,11 +211,19 @@ export function UploadScreen() {
 
             {state.uploadedImage && (
               <button 
-                className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-bold py-5 px-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/30 mt-6 group"
+                className={`w-full font-bold py-5 px-8 rounded-2xl transition-all duration-300 mt-6 group ${
+                  hasApiKey
+                    ? 'bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/30'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
                 onClick={handleGenerateAds}
+                disabled={!hasApiKey}
+                title={!hasApiKey ? 'Configure API key to continue' : 'Generate your ad'}
               >
-                <Sparkles className="w-5 h-5 inline mr-3 transition-transform duration-300 group-hover:rotate-12" />
-                Generate Ad
+                <Sparkles className={`w-5 h-5 inline mr-3 transition-transform duration-300 ${
+                  hasApiKey ? 'group-hover:rotate-12' : ''
+                }`} />
+                {hasApiKey ? 'Generate Ad' : 'Configure API Key Required'}
               </button>
             )}
 
